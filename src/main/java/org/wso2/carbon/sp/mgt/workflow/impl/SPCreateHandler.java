@@ -20,6 +20,7 @@ package org.wso2.carbon.sp.mgt.workflow.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
@@ -116,8 +117,20 @@ public class SPCreateHandler extends AbstractWorkflowRequestHandler {
         wfParams.put("Tenant Domain",tenantDomain);
         wfParams.put("Username",userName);
         String uuid = UUID.randomUUID().toString();
-
+        Entity[] entities = new Entity[1];
+        entities[0] = new Entity(serviceProvider.getApplicationName(), "SP", -1234);
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
+            throw new WorkflowException("Operation is not valid.");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
         return state;
+    }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        //Check if the operation is valid, eg:- Is there a SP already added and not approved with the same name as
+        // this SP.
+        return true;
     }
 }
